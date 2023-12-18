@@ -1,6 +1,47 @@
-import Image from 'next/image'
+'use client';
 
-export default function Home() {
+import Image from 'next/image'
+import { useForm, Resolver } from "react-hook-form"
+
+type LoginFormValues = {
+  username: string
+  password: string
+}
+
+const resolver: Resolver<LoginFormValues> = async (values) => {
+
+  let errors = {}
+
+  console.log(values.username)
+  console.log(null)
+
+  errors = {...(values.username === '' ? { 
+    username: {
+      type: "required",
+      message: "This is required."
+    }} : {}
+  ), ...errors}
+  errors = {...(values.password === '' ? { 
+    password: {
+      type: "required",
+      message: "This is required."
+    }} : {}
+  ), ...errors}
+
+  return {
+    values: values.username && values.password ? values : {},
+    errors
+  }
+}
+
+const Home: React.FunctionComponent<{}> = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({ resolver })
+  const onSubmit = handleSubmit((data) => console.log(data))
+
   return (
     <main className="flex flex-col min-h-screen bg-gray-100">
       <div className="bg-black w-max-full top-50 mx-10 my-5 p-10 rounded-3xl">
@@ -26,10 +67,27 @@ export default function Home() {
         </button>
       </div>
 
+      <div className="grid justify-items-center w-full">
+        <div className="grid justify-items-center border-2 border-black w-3/12 h-80 rounded-3xl">
+          <h4 className="text-black mt-10 text-3xl">Login</h4>
 
-      <div className="flex justify-content b-10">
-        {/** Complete login here:  */}
+          <form onSubmit={onSubmit} className="flex flex-col">
+
+            <div className="grid justify-center justify-between">
+            <input className="login-input" {...register("username")} placeholder="Username"/>
+            {errors?.username && <p className="text-red-600">{errors.username.message}</p>}
+            
+            <input className="login-input" type="password" {...register("password")} placeholder="Password" />
+            {errors?.password && <p className="text-red-600">{errors.password.message}</p>}
+            </div>
+            <input className="border-black border-2 text-black rounded-xl max-w-xl hover:bg-black hover:text-white m-2" type="submit" value="Submit" />
+          </form>
+
+        </div>
       </div>
+
     </main>
   )
-}
+};
+
+export default Home;
