@@ -33,17 +33,16 @@ export const SignUpPage: React.FunctionComponent<{}> = () => {
 						},
 					})
 						.then((resMutation) => {
-							console.log(resMutation.data.login.token);
 							sessionStorage.setItem('Token', resMutation.data.login.token);
 
 							router.push('/dashboard');
 						})
 						.catch((err) => {
-							console.log(err);
+							// to avoid error in the console
 						});
 				}}
 			/>
-			{gqlError ? <div className="text-black">{gqlError}</div> : ''}
+			{gqlError ? <div className="form-message-error">{gqlError}</div> : ''}
 		</div>
 	);
 };

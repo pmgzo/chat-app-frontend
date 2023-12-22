@@ -4,6 +4,7 @@ import { gql, useMutation } from '@apollo/client';
 import { LoginForm } from '../components/login-form';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { CustomGQLErrorCode } from '../apollo/types';
 
 const LOGIN = gql`
 	mutation Login($credentials: UserCredentialsInput!) {
@@ -13,13 +14,33 @@ const LOGIN = gql`
 	}
 `;
 
+interface GQLError {
+	message: string;
+	code?: CustomGQLErrorCode;
+}
+
+function getCustomGQLErrorCode(code?: string): CustomGQLErrorCode | undefined {
+	if (!code) return undefined;
+	if (
+		Object.values(CustomGQLErrorCode).includes(
+			code as unknown as CustomGQLErrorCode,
+		)
+	) {
+		return code as unknown as CustomGQLErrorCode;
+	}
+}
+
 export const LoginPage: React.FunctionComponent<{}> = () => {
 	const [login, { error }] = useMutation(LOGIN);
 	const router = useRouter();
-	const [gqlError, setGQLError] = useState<undefined | string>();
+	const [gqlError, setGQLError] = useState<undefined | GQLError>();
 
 	if (error && !gqlError) {
-		setGQLError(error!.message);
+		setGQLError({
+			message: error!.message,
+			// @ts-ignore
+			code: getCustomGQLErrorCode(error.graphQLErrors[0]?.extensions?.code),
+		});
 	}
 
 	return (
@@ -36,16 +57,16 @@ export const LoginPage: React.FunctionComponent<{}> = () => {
 						},
 					})
 						.then((resMutation) => {
-							console.log(resMutation.data.login.token);
 							sessionStorage.setItem('Token', resMutation.data.login.token);
 							router.push('/dashboard');
 						})
 						.catch((err) => {
-							console.log(err);
+							// to avoid error in the console
 						});
 				}}
+				outlineInputs={!!gqlError && gqlError.code === CustomGQLErrorCode.AuthenticationError}
 			/>
-			{gqlError ? <div className="text-black">{gqlError}</div> : ''}
+			{gqlError ? <div className="form-message-error">{gqlError.message}</div> : ''}
 		</div>
 	);
 };

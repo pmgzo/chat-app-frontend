@@ -1,7 +1,4 @@
-import {
-	ApolloClient,
-	InMemoryCache,
-} from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 
 export const client = new ApolloClient({
 	// to change for prod env
