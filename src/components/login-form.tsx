@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm, Resolver } from 'react-hook-form';
 
 type LoginFormValues = {
@@ -7,13 +8,11 @@ type LoginFormValues = {
 
 export type LoginFormArgs = {
 	submit: (data: LoginFormValues) => void;
+	outlineInputs: boolean
 };
 
 const resolver: Resolver<LoginFormValues> = async (values) => {
 	let errors = {};
-
-	console.log(values.username);
-	console.log(null);
 
 	errors = {
 		...(values.username === ''
@@ -46,6 +45,7 @@ const resolver: Resolver<LoginFormValues> = async (values) => {
 
 export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 	submit,
+	outlineInputs
 }) => {
 	const {
 		register,
@@ -54,6 +54,11 @@ export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 	} = useForm<LoginFormValues>({ resolver });
 	const onSubmit = handleSubmit(submit);
 
+	const [outlined, setOutline] = useState<boolean | undefined>(false);
+	if (!outlined && outlineInputs) {
+		setOutline(true);
+	}
+
 	return (
 		<div className="grid justify-items-center border-2 border-black w-3/12 h-80 rounded-3xl">
 			<h4 className="text-black mt-10 text-3xl">Login</h4>
@@ -61,7 +66,7 @@ export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 			<form onSubmit={onSubmit} className="flex flex-col">
 				<div className="grid justify-center justify-between">
 					<input
-						className="login-input"
+						className={`${outlineInputs ? "login-input  outline outline-2 outline-red-600 login-input" : "login-input"}`}
 						{...register('username')}
 						placeholder="Username"
 					/>
@@ -70,7 +75,7 @@ export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 					)}
 
 					<input
-						className="login-input"
+						className={outlineInputs ? "outline outline-2 outline-red-600 login-input" : "login-input"}
 						type="password"
 						{...register('password')}
 						placeholder="Password"

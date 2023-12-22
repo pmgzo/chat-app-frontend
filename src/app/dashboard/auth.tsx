@@ -17,5 +17,5 @@ export const Auth: React.FunctionComponent<{
 		}
 	}, [authorized]);
 
-	return authorized ? children : null;
+	return authorized ? <div className="w-full h-full">{children}</div> : null;
 };
