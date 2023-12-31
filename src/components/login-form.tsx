@@ -8,7 +8,7 @@ type LoginFormValues = {
 
 export type LoginFormArgs = {
 	submit: (data: LoginFormValues) => void;
-	outlineInputs: boolean
+	outlineInputs: boolean;
 };
 
 const resolver: Resolver<LoginFormValues> = async (values) => {
@@ -45,7 +45,7 @@ const resolver: Resolver<LoginFormValues> = async (values) => {
 
 export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 	submit,
-	outlineInputs
+	outlineInputs,
 }) => {
 	const {
 		register,
@@ -66,7 +66,11 @@ export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 			<form onSubmit={onSubmit} className="flex flex-col">
 				<div className="grid justify-center justify-between">
 					<input
-						className={`${outlineInputs ? "login-input  outline outline-2 outline-red-600 login-input" : "login-input"}`}
+						className={`${
+							outlineInputs
+								? 'login-input  outline outline-2 outline-red-600 login-input'
+								: 'login-input'
+						}`}
 						{...register('username')}
 						placeholder="Username"
 					/>
@@ -75,7 +79,11 @@ export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 					)}
 
 					<input
-						className={outlineInputs ? "outline outline-2 outline-red-600 login-input" : "login-input"}
+						className={
+							outlineInputs
+								? 'outline outline-2 outline-red-600 login-input'
+								: 'login-input'
+						}
 						type="password"
 						{...register('password')}
 						placeholder="Password"

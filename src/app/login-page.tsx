@@ -5,6 +5,7 @@ import { LoginForm } from '../components/login-form';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { CustomGQLErrorCode } from '../apollo/types';
+import { client } from '@/apollo/client';
 
 const LOGIN = gql`
 	mutation Login($credentials: UserCredentialsInput!) {
@@ -58,15 +59,23 @@ export const LoginPage: React.FunctionComponent<{}> = () => {
 					})
 						.then((resMutation) => {
 							sessionStorage.setItem('Token', resMutation.data.login.token);
-							router.push('/dashboard');
+							client.resetStore().then(() => {
+								router.push('/dashboard');
+							});
 						})
 						.catch((err) => {
 							// to avoid error in the console
 						});
 				}}
-				outlineInputs={!!gqlError && gqlError.code === CustomGQLErrorCode.AuthenticationError}
+				outlineInputs={
+					!!gqlError && gqlError.code === CustomGQLErrorCode.AuthenticationError
+				}
 			/>
-			{gqlError ? <div className="form-message-error">{gqlError.message}</div> : ''}
+			{gqlError ? (
+				<div className="form-message-error">{gqlError.message}</div>
+			) : (
+				''
+			)}
 		</div>
 	);
 };
