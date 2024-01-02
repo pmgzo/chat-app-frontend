@@ -19,7 +19,6 @@ const SEND_FRIEND_REQ = gql`
 			pending
 			peer {
 				id
-				friendId
 			}
 		}
 	}

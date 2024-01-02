@@ -1,34 +1,52 @@
 'use client';
 
 import { gql, useSuspenseQuery } from '@apollo/client';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const GET_CONVS = gql`
-	query GetConvs {
+	query GetConvs($take: Int!) {
 		conversations {
 			id
 			friendshipId
 			count
-			messages
+			messages(take: $take) {
+				senderId
+				text
+			}
+			peer {
+				id
+				name
+			}
 		}
 	}
 `;
 
 export default function Conversations() {
-	// const router = useRouter();
+	const router = useRouter();
 
-	const { error, data } = useSuspenseQuery(GET_CONVS);
+	const { error, data } = useSuspenseQuery(GET_CONVS, {
+		variables: { take: 2 },
+	});
 
 	return (
-		<div>
-			<ul>
-				{/*@ts-ignore*/}
-				{data.conversations.map(({ id }) => (
-					<li>
-						{/* <button onClick={() => router.push(`/${id}`)}>{id}</button> */}
-					</li>
-				))}
-			</ul>
+		<div className="w-50">
+			{"Conversations:"}
+			{/**@ts-ignore */}
+			{data.conversations?.length ? (
+				<ul className="flex justify-start">
+					{/*@ts-ignore*/}
+					{data.conversations.map(({ id, messages, peer: { name } }) => (
+						<li className="p-2">
+							{/* Display messages here */}
+							<button onClick={() => router.push(`dashboard/chats/${id}`)}>
+								conversation with {name}
+							</button>
+						</li>
+					))}
+				</ul>
+			) : (
+				'No conversations'
+			)}
 		</div>
 	);
 }
