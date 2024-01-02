@@ -3,6 +3,7 @@
 import { Suspense } from 'react';
 import Loading from '../../loading';
 import Conversations from './conversations';
+import UncreatedConversations from './uncreatedConversations';
 
 export default function Page() {
 	return (
@@ -10,9 +11,10 @@ export default function Page() {
 			<div className="flex justify-center">
 				<h3 className="text-black bg-white"> Chats Page </h3>
 			</div>
-			{/* <Suspense fallback={<Loading />}>
+			<Suspense fallback={<Loading />}>
 				<Conversations />
-			</Suspense> */}
+				<UncreatedConversations/>
+			</Suspense>
 		</div>
 	);
 }
