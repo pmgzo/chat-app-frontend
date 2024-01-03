@@ -32,7 +32,6 @@ export default function FriendSuggestions() {
 	] = useMutation(SEND_FRIEND_REQ);
 
 	// TODO: consider people with non responded friend request
-	console.log(data);
 
 	return (
 		<div className="w-30">

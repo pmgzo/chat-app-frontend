@@ -34,7 +34,6 @@ function DashboardRendering({ children }: { children: React.ReactNode }) {
 					</button>
 				</div>
 			</div>
-			<div className="text-black">You're connected !</div>
 			{children}
 		</section>
 	);

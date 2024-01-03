@@ -13,7 +13,7 @@ export default function Page() {
 			</div>
 			<Suspense fallback={<Loading />}>
 				<Conversations />
-				<UncreatedConversations/>
+				<UncreatedConversations />
 			</Suspense>
 		</div>
 	);
