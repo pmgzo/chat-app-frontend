@@ -1,7 +1,7 @@
 'use client';
 
 import { gql, useSuspenseQuery } from '@apollo/client';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const GET_CONVS = gql`
 	query GetConvs($take: Int!) {
@@ -22,27 +22,33 @@ const GET_CONVS = gql`
 `;
 
 export default function Conversations() {
-	const router = useRouter();
-
 	const { error, data } = useSuspenseQuery(GET_CONVS, {
 		variables: { take: 2 },
 	});
 
 	return (
 		<div className="w-50">
-			{"Conversations:"}
+			{'Conversations:'}
 			{/**@ts-ignore */}
 			{data.conversations?.length ? (
 				<ul className="flex justify-start">
 					{/*@ts-ignore*/}
-					{data.conversations.map(({ id, messages, peer: { name } }) => (
-						<li className="p-2">
-							{/* Display messages here */}
-							<button onClick={() => router.push(`dashboard/chats/${id}`)}>
-								conversation with {name}
-							</button>
-						</li>
-					))}
+					{data.conversations.map(
+						/*@ts-ignore*/
+						({ id: conversationId, messages, peer: { id: peerId, name } }) => (
+							<li className="p-2">
+								{/* Display messages here */}
+								<Link
+									href={{
+										pathname: `chats/${name}`,
+										query: { conversationId, peerId },
+									}}
+								>
+									Conversation with {name}
+								</Link>
+							</li>
+						),
+					)}
 				</ul>
 			) : (
 				'No conversations'

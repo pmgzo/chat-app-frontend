@@ -8,25 +8,28 @@ const GET_UNCREATED_CONVS = gql`
 		uncreatedConversations {
 			id
 			peer {
-                id
-                name
+				id
+				name
 			}
 		}
 	}
 `;
 
 const CREATE_CONVERSATION = gql`
-    mutation CreateConv($friendshipId: Int!, $limitMessages: Int!) {
-        createConversation(friendshipId: $friendshipId) {
-            id
-            count
-            messages(take: $limitMessages) {
-                text
-                receiverId
-            }
-            
-        }
-    }
+	mutation CreateConv($friendshipId: Int!, $limitMessages: Int!) {
+		createConversation(friendshipId: $friendshipId) {
+			id
+			count
+			messages(take: $limitMessages) {
+				text
+				receiverId
+			}
+			peer {
+				id
+				name
+			}
+		}
+	}
 `;
 
 export default function UncreatedConversations() {
@@ -47,10 +50,10 @@ export default function UncreatedConversations() {
 				{data.uncreatedConversations.map(
 					({
 						id: friendshipId,
-						peer: {name},
+						peer: { name },
 					}: {
-						id: number,
-						peer: {name: string }
+						id: number;
+						peer: { name: string };
 					}) => (
 						<li className="p-2">
 							<button
@@ -58,8 +61,13 @@ export default function UncreatedConversations() {
 									createConversation({
 										variables: { friendshipId, limitMessages: 10 },
 									}).then((receivedData) => {
+										const peerId = receivedData.data.createConversation.peer.id;
+										const conversationId =
+											receivedData.data.createConversation.id;
 										// push parameter to new routes ?
-										router.push(`dashboard/chats/${name}`);
+										router.push(
+											`chats/${name}?conversationId=${conversationId}?peerId=${peerId}`,
+										);
 									});
 								}}
 							>
