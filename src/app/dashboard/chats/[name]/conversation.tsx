@@ -1,12 +1,18 @@
 import { gql, useMutation, useSuspenseQuery } from '@apollo/client';
-import { KeyboardEventHandler, useState } from 'react';
+import {
+	KeyboardEventHandler,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 
-const GET_CONVS = gql`
+const GET_CONV = gql`
 	query GetConv($id: Int!, $skip: Int, $take: Int) {
 		conversation(id: $id) {
 			id
 			count
 			messages(take: $take, skip: $skip) {
+				id
 				senderId
 				text
 			}
@@ -27,6 +33,90 @@ const SEND_MESSAGE = gql`
 	}
 `;
 
+export const ScrollableComponent: React.FunctionComponent<{
+	// children: ReactNode | JSX.Element;
+	fetchMore: ({ variables }: { variables: any }) => Promise<any>;
+	count: number;
+	step: number;
+	unchangedVariables: Object | null;
+	startData: Array<any>;
+	peerId: number;
+}> = ({ fetchMore, count, step, unchangedVariables, startData, peerId }) => {
+	const [data, setData] = useState<Array<any>>(startData);
+	const [skip, setSkip] = useState(0);
+
+	const outerDiv = useRef(null);
+
+	useEffect(() => {
+		if (data.length === step) {
+			outerDiv.current.scrollTo(
+				0,
+				outerDiv.current.scrollHeight - outerDiv.current.clientHeight,
+			);
+		}
+	}, [data]);
+
+	function loadScroll() {
+		const newSkip = skip + step;
+		fetchMore({
+			variables: { take: step, skip: newSkip, ...(unchangedVariables || {}) },
+		}).then((data2) => {
+			setData((oldData) => [...oldData, ...data2.data.conversation.messages]);
+			setSkip(newSkip);
+		});
+	}
+
+	function handleScroll(event: any) {
+		const { scrollTop } = event.target;
+
+		if (scrollTop === 0 && data.length < count) {
+			loadScroll();
+		}
+	}
+
+	return (
+		<div
+			ref={outerDiv}
+			className="relative overflow-y-scroll bg-gray-50 h-full w-5/6"
+			onScroll={handleScroll}
+		>
+			<ul className="">
+				{/* @ts-ignore */}
+				{data
+					.map(
+						({
+							text,
+							senderId,
+							id,
+						}: {
+							text: string;
+							senderId: number;
+							id: number;
+						}) =>
+							senderId == peerId ? (
+								<div
+									key={String(id)}
+									className="flex flex-row-reverse max-w-3/6 mb-2 mr-2"
+								>
+									<li className="bg-gray-200 p-2 rounded-xl">{text}</li>
+								</div>
+							) : (
+								<div
+									key={String(id)}
+									className="flex flex-start max-w-3/6 mb-2 ml-2"
+								>
+									<li className="bg-[#E4ABFF] text-black p-2  rounded-xl">
+										{text}
+									</li>
+								</div>
+							),
+					)
+					.reverse()}
+			</ul>
+		</div>
+	);
+};
+
 export default function Conversation({
 	conversationId,
 	peerId,
@@ -34,12 +124,14 @@ export default function Conversation({
 	conversationId: number;
 	peerId: number;
 }) {
-	const { error, data } = useSuspenseQuery(GET_CONVS, {
-		variables: { id: conversationId, take: 5 },
+	const step = 10;
+	const { error, data, fetchMore } = useSuspenseQuery(GET_CONV, {
+		variables: { id: conversationId, take: step },
 	});
+
 	const [
 		sendMessage,
-		{ loading, error: createConversationError, data: createdConvData },
+		{ loading, error: createMessageDataError, data: createMessageData },
 	] = useMutation(SEND_MESSAGE);
 
 	const [message, setMessage] = useState<string>('');
@@ -47,40 +139,35 @@ export default function Conversation({
 	const onEnter: KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
 		if (event.key === 'Enter' && event.shiftKey == false) {
 			console.log(peerId);
-			sendMessage({
-				variables: {
-					messageInput: {
-						conversationId,
-						receiverId: peerId,
-						text: message,
+			const trimmedMessage = message.trim();
+			if (trimmedMessage) {
+				sendMessage({
+					variables: {
+						messageInput: {
+							conversationId,
+							receiverId: peerId,
+							text: trimmedMessage,
+						},
 					},
-				},
-			}).then(() => setMessage(''));
+				}).then(() => setMessage(''));
+			}
 		}
 	};
 
+	const { count, messages: startData } = data.conversation;
+
 	return (
-		<div>
-			<ul className="bg-gray-50 w-5/6">
-				{/* @ts-ignore */}
-				{data.conversation.messages
-					.map(({ text, senderId }: { text: string; senderId: number }) =>
-						senderId == peerId ? (
-							<div className="flex flex-start max-w-3/6 mb-2 ml-2">
-								<li className="bg-gray-200 text-black p-2  rounded-xl">
-									{text}
-								</li>
-							</div>
-						) : (
-							<div className="flex flex-row-reverse max-w-3/6 mb-2 mr-2">
-								<li className="text-black bg-[#E4ABFF] p-2 rounded-xl">
-									{text}
-								</li>
-							</div>
-						),
-					)
-					.reverse()}
-			</ul>
+		<div className="flex flex-col">
+			<div className="h-[25rem]">
+				<ScrollableComponent
+					fetchMore={fetchMore}
+					count={count}
+					step={step}
+					unchangedVariables={{ id: conversationId }}
+					startData={startData}
+					peerId={peerId}
+				/>
+			</div>
 
 			<div className="flex flex-start">
 				<textarea
