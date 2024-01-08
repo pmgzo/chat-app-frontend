@@ -5,7 +5,14 @@ import {
 	useSubscription,
 	useSuspenseQuery,
 } from '@apollo/client';
-import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';
+import {
+	KeyboardEventHandler,
+	Reducer,
+	useEffect,
+	useReducer,
+	useRef,
+	useState,
+} from 'react';
 
 const GET_CONV = gql`
 	query GetConv($id: Int!, $skip: Int, $take: Int) {
@@ -45,15 +52,61 @@ const MESSAGE_SUBSCRIPTION = gql`
 	}
 `;
 
-interface TypedMessageType {
-	text: string;
-	messageJustSent: boolean;
+enum ConvEvent {
+	SEND_MESSAGE = 1,
+	LOAD_PREVIOUS_MESSAGES,
+	RECEIVED_MESSAGE,
+	RESET_UNSEEN_MESSAGES,
 }
 
-interface ReceivedMessagesType {
-	unseenMessages: number;
-	// changes with type of message
+interface ConvActionType {
+	type: ConvEvent;
+	variables?: any;
+}
+
+interface StateConv {
 	messages: Array<any>;
+	previousScrollHeight?: number;
+	skip: number;
+	unseenMessages: number;
+	lastAction?: ConvEvent;
+}
+
+function reducer(state: StateConv, action: ConvActionType): StateConv {
+	switch (action.type) {
+		case ConvEvent.SEND_MESSAGE: {
+			return {
+				...state,
+				messages: [action.variables.message, ...state.messages],
+				lastAction: action.type,
+			};
+		}
+		case ConvEvent.LOAD_PREVIOUS_MESSAGES: {
+			return {
+				...state,
+				messages: [...state.messages, ...action.variables.oldMessages],
+				skip: action.variables.skip,
+				lastAction: action.type,
+				previousScrollHeight: action.variables.previousScrollHeight,
+			};
+		}
+		case ConvEvent.RECEIVED_MESSAGE: {
+			return {
+				...state,
+				messages: [action.variables.receivedMessage, ...state.messages],
+				lastAction: action.type,
+				unseenMessages: state.unseenMessages + 1,
+			};
+		}
+		case ConvEvent.RESET_UNSEEN_MESSAGES: {
+			return {
+				...state,
+				lastAction: action.type,
+				unseenMessages: 0,
+			};
+		}
+	}
+	throw Error('Unknown action: ' + action.type);
 }
 
 export const ScrollableComponent: React.FunctionComponent<{
@@ -73,26 +126,23 @@ export const ScrollableComponent: React.FunctionComponent<{
 	peerId,
 	conversationId,
 }) => {
-	const [data, setData] = useState<Array<any>>(startData);
-	const [skip, setSkip] = useState(0);
 	const outerDiv = useRef(null);
-	const [message, setMessage] = useState<TypedMessageType>({
-		text: '',
-		messageJustSent: false,
-	});
+	const [message, setMessage] = useState<string>('');
 
-	const [receivedMessages, setReceivedMessages] =
-		useState<ReceivedMessagesType>({ unseenMessages: 0, messages: [] });
+	const [state, dispatch] = useReducer<Reducer<StateConv, ConvActionType>>(
+		reducer,
+		{ messages: startData, unseenMessages: 0, skip: 0 },
+	);
 
 	const [sendMessage, { error: createMessageDataError }] =
 		useMutation(SEND_MESSAGE);
 
 	// TODO: to replace by the right type
 	function onData(options: OnDataOptions<any>) {
-		setReceivedMessages((currentData) => ({
-			unseenMessages: currentData.unseenMessages + 1,
-			messages: [options.data.data.messageSent, ...currentData.messages],
-		}));
+		dispatch({
+			type: ConvEvent.RECEIVED_MESSAGE,
+			variables: { receivedMessage: options.data.data.messageSent },
+		});
 	}
 
 	const { error: subscriptionMessageError } = useSubscription(
@@ -102,7 +152,7 @@ export const ScrollableComponent: React.FunctionComponent<{
 
 	const onEnter: KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
 		if (event.key === 'Enter' && event.shiftKey == false) {
-			const trimmedMessage = message.text.trim();
+			const trimmedMessage = message.trim();
 			if (trimmedMessage) {
 				sendMessage({
 					variables: {
@@ -113,65 +163,78 @@ export const ScrollableComponent: React.FunctionComponent<{
 						},
 					},
 				}).then((createMessageData) => {
-					setData((currentData) => [
-						createMessageData.data.sendMessage,
-						...currentData,
-					]);
-					setMessage({ text: '', messageJustSent: true });
+					dispatch({
+						type: ConvEvent.SEND_MESSAGE,
+						variables: { message: createMessageData.data.sendMessage },
+					});
+					setMessage('');
 				});
 			}
 		}
 	};
 
 	useEffect(() => {
-		if (receivedMessages.messages.length) {
-			// ref.current = receivedMessages.unseenMessages;
-			setData((oldData) => [...receivedMessages.messages, ...oldData]);
-			setReceivedMessages((currentData) => ({ ...currentData, messages: [] }));
-		}
-		if (data.length === step || message.messageJustSent) {
+		if (
+			state.messages.length === step ||
+			state.lastAction === ConvEvent.SEND_MESSAGE
+		) {
 			outerDiv.current.scrollTo({
 				left: 0,
 				top: outerDiv.current.scrollHeight - outerDiv.current.clientHeight,
 				behavior: 'smooth',
 			});
 		}
-		if (message.messageJustSent) {
-			setMessage({ text: '', messageJustSent: false });
+
+		if (state.lastAction === ConvEvent.LOAD_PREVIOUS_MESSAGES) {
+			console.log(
+				`${outerDiv.current.scrollHeight} ${state.previousScrollHeight!}`,
+			);
+
+			outerDiv.current.scrollTo({
+				left: 0,
+				top: outerDiv.current.scrollHeight - state.previousScrollHeight!,
+			});
 		}
-	}, [data, message, receivedMessages]);
+	}, [state]);
 
 	function loadScroll() {
-		const newSkip = skip + step;
+		const newSkip = state.skip + step;
+
+		const currentScrollHeight = outerDiv.current.scrollHeight;
+
 		fetchMore({
 			variables: { take: step, skip: newSkip, ...(unchangedVariables || {}) },
 		}).then((data2) => {
-			setData((oldData) => [...oldData, ...data2.data.conversation.messages]);
-			setSkip(newSkip);
+			dispatch({
+				type: ConvEvent.LOAD_PREVIOUS_MESSAGES,
+				variables: {
+					oldMessages: data2.data.conversation.messages,
+					previousScrollHeight: currentScrollHeight,
+					skip: newSkip,
+				},
+			});
 		});
 	}
 
 	function handleScroll(event: any) {
 		const { scrollTop, scrollHeight, clientHeight } = event.target;
 
-		if (scrollTop === 0 && data.length < count) {
+		console.log(outerDiv.current.scrollHeight);
+
+		if (scrollTop === 0 && state.messages.length < count) {
 			// if try to scroll on top, load previous messages
 			loadScroll();
 		}
 		if (scrollTop === scrollHeight - clientHeight) {
-			// reset seen messages
-			setReceivedMessages((currentData) => ({
-				...currentData,
-				unseenMessages: 0,
-			}));
+			dispatch({ type: ConvEvent.RESET_UNSEEN_MESSAGES });
 		}
 	}
 
 	return (
 		<>
 			<div className="bg-gray-50 w-5/6 h-[25rem] flex flex-col-reverse">
-				{receivedMessages.unseenMessages !== 0 ? (
-					<div className="absolute w-5/6 bg-gray-100 text-black z-10 flex justify-center">{`You have ${receivedMessages.unseenMessages} unread message(s)`}</div>
+				{state.unseenMessages !== 0 ? (
+					<div className="absolute w-5/6 bg-gray-100 text-black z-10 flex justify-center">{`You have ${state.unseenMessages} unread message(s)`}</div>
 				) : (
 					''
 				)}
@@ -182,7 +245,7 @@ export const ScrollableComponent: React.FunctionComponent<{
 					onScroll={handleScroll}
 				>
 					{/* @ts-ignore */}
-					{data
+					{state.messages
 						.map(
 							({
 								text,
@@ -218,10 +281,10 @@ export const ScrollableComponent: React.FunctionComponent<{
 			<div className="flex flex-start">
 				<textarea
 					className="border-4 border-black p-2 max-w-100"
-					value={message.text}
+					value={message}
 					name="message"
 					onChange={(event) => {
-						setMessage({ text: event.target.value, messageJustSent: false });
+						setMessage(event.target.value);
 					}}
 					onKeyDown={onEnter}
 				/>
