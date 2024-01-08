@@ -1,4 +1,10 @@
-import { OnDataOptions, gql, useMutation, useSubscription, useSuspenseQuery } from '@apollo/client';
+import {
+	OnDataOptions,
+	gql,
+	useMutation,
+	useSubscription,
+	useSuspenseQuery,
+} from '@apollo/client';
 import { KeyboardEventHandler, useEffect, useRef, useState } from 'react';
 
 const GET_CONV = gql`
@@ -30,51 +36,68 @@ const SEND_MESSAGE = gql`
 `;
 
 const MESSAGE_SUBSCRIPTION = gql`
-  subscription OnMessageSent($conversationId: Int!, $receiverId: Int!) {
-    messageSent(conversationId: $conversationId, receiverId: $receiverId) {
-		id
-		senderId
-		text
-    }
-  }
+	subscription OnMessageSent($conversationId: Int!, $receiverId: Int!) {
+		messageSent(conversationId: $conversationId, receiverId: $receiverId) {
+			id
+			senderId
+			text
+		}
+	}
 `;
 
 interface TypedMessageType {
-	text: string,
-	messageJustSent: boolean 
+	text: string;
+	messageJustSent: boolean;
+}
+
+interface ReceivedMessagesType {
+	unseenMessages: number;
+	// changes with type of message
+	messages: Array<any>;
 }
 
 export const ScrollableComponent: React.FunctionComponent<{
-	// children: ReactNode | JSX.Element;
-	fetchMore: ({ variables }: { variables: any }) => Promise<any>,
-	count: number,
-	step: number,
-	unchangedVariables: Object | null,
-	startData: Array<any>,
-	peerId: number,
-	conversationId: number
-}> = ({ fetchMore, count, step, unchangedVariables, startData, peerId, conversationId }) => {
-
+	fetchMore: ({ variables }: { variables: any }) => Promise<any>;
+	count: number;
+	step: number;
+	unchangedVariables: Object | null;
+	startData: Array<any>;
+	peerId: number;
+	conversationId: number;
+}> = ({
+	fetchMore,
+	count,
+	step,
+	unchangedVariables,
+	startData,
+	peerId,
+	conversationId,
+}) => {
 	const [data, setData] = useState<Array<any>>(startData);
 	const [skip, setSkip] = useState(0);
 	const outerDiv = useRef(null);
-	const [message, setMessage] = useState<TypedMessageType>({text: '', messageJustSent: false});
+	const [message, setMessage] = useState<TypedMessageType>({
+		text: '',
+		messageJustSent: false,
+	});
 
-	const [receivedMessage, setReceivedMessage] = useState<any | null>(null);
+	const [receivedMessages, setReceivedMessages] =
+		useState<ReceivedMessagesType>({ unseenMessages: 0, messages: [] });
 
-	const [
-		sendMessage,
-	{ error: createMessageDataError },
-	] = useMutation(SEND_MESSAGE);
+	const [sendMessage, { error: createMessageDataError }] =
+		useMutation(SEND_MESSAGE);
 
 	// TODO: to replace by the right type
 	function onData(options: OnDataOptions<any>) {
-		setReceivedMessage(options.data.data.messageSent)
+		setReceivedMessages((currentData) => ({
+			unseenMessages: currentData.unseenMessages + 1,
+			messages: [options.data.data.messageSent, ...currentData.messages],
+		}));
 	}
 
 	const { error: subscriptionMessageError } = useSubscription(
 		MESSAGE_SUBSCRIPTION,
-		{ variables: { receiverId: 1, conversationId } , onData}
+		{ variables: { receiverId: 1, conversationId }, onData },
 	);
 
 	const onEnter: KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
@@ -90,29 +113,33 @@ export const ScrollableComponent: React.FunctionComponent<{
 						},
 					},
 				}).then((createMessageData) => {
-					setData((oldData) => [createMessageData.data.sendMessage, ...oldData])
-					setMessage({text: '', messageJustSent: true});
+					setData((currentData) => [
+						createMessageData.data.sendMessage,
+						...currentData,
+					]);
+					setMessage({ text: '', messageJustSent: true });
 				});
 			}
 		}
 	};
 
 	useEffect(() => {
-		if (receivedMessage) {
-			setData((oldData) => [receivedMessage, ...oldData])
-			setReceivedMessage(null)
-		} 
+		if (receivedMessages.messages.length) {
+			// ref.current = receivedMessages.unseenMessages;
+			setData((oldData) => [...receivedMessages.messages, ...oldData]);
+			setReceivedMessages((currentData) => ({ ...currentData, messages: [] }));
+		}
 		if (data.length === step || message.messageJustSent) {
 			outerDiv.current.scrollTo({
 				left: 0,
 				top: outerDiv.current.scrollHeight - outerDiv.current.clientHeight,
-				behavior: "smooth"
-			})
+				behavior: 'smooth',
+			});
 		}
 		if (message.messageJustSent) {
-			setMessage({text: '', messageJustSent: false});
+			setMessage({ text: '', messageJustSent: false });
 		}
-	}, [data, message, receivedMessage]);
+	}, [data, message, receivedMessages]);
 
 	function loadScroll() {
 		const newSkip = skip + step;
@@ -125,21 +152,35 @@ export const ScrollableComponent: React.FunctionComponent<{
 	}
 
 	function handleScroll(event: any) {
-		const { scrollTop } = event.target;
+		const { scrollTop, scrollHeight, clientHeight } = event.target;
 
 		if (scrollTop === 0 && data.length < count) {
+			// if try to scroll on top, load previous messages
 			loadScroll();
+		}
+		if (scrollTop === scrollHeight - clientHeight) {
+			// reset seen messages
+			setReceivedMessages((currentData) => ({
+				...currentData,
+				unseenMessages: 0,
+			}));
 		}
 	}
 
 	return (
 		<>
-			<div
-				ref={outerDiv}
-				className="relative overflow-y-scroll bg-gray-50 h-full w-5/6"
-				onScroll={handleScroll}
-			>
-				<ul className="">
+			<div className="bg-gray-50 w-5/6 h-[25rem] flex flex-col-reverse">
+				{receivedMessages.unseenMessages !== 0 ? (
+					<div className="absolute w-5/6 bg-gray-100 text-black z-10 flex justify-center">{`You have ${receivedMessages.unseenMessages} unread message(s)`}</div>
+				) : (
+					''
+				)}
+
+				<ul
+					ref={outerDiv}
+					className="child h-full relative overflow-y-scroll"
+					onScroll={handleScroll}
+				>
 					{/* @ts-ignore */}
 					{data
 						.map(
@@ -180,7 +221,7 @@ export const ScrollableComponent: React.FunctionComponent<{
 					value={message.text}
 					name="message"
 					onChange={(event) => {
-						setMessage({text: event.target.value, messageJustSent: false});
+						setMessage({ text: event.target.value, messageJustSent: false });
 					}}
 					onKeyDown={onEnter}
 				/>
