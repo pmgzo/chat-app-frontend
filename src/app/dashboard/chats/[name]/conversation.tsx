@@ -1,4 +1,10 @@
 import {
+	NotificationStatus,
+	popNotification,
+} from '@/lib/features/notification/notificationSlice';
+import { useAppDispatchWithResetState } from '@/lib/hooks';
+import {
+	ApolloError,
 	OnDataOptions,
 	gql,
 	useMutation,
@@ -43,8 +49,8 @@ const SEND_MESSAGE = gql`
 `;
 
 const MESSAGE_SUBSCRIPTION = gql`
-	subscription OnMessageSent($conversationId: Int!, $receiverId: Int!) {
-		messageSent(conversationId: $conversationId, receiverId: $receiverId) {
+	subscription OnMessageSent($conversationId: Int!) {
+		messageSent(conversationId: $conversationId) {
 			id
 			senderId
 			text
@@ -134,6 +140,8 @@ export const ScrollableComponent: React.FunctionComponent<{
 		{ messages: startData, unseenMessages: 0, skip: 0 },
 	);
 
+	const dispatchNotification = useAppDispatchWithResetState();
+
 	const [sendMessage, { error: createMessageDataError }] =
 		useMutation(SEND_MESSAGE);
 
@@ -145,9 +153,20 @@ export const ScrollableComponent: React.FunctionComponent<{
 		});
 	}
 
+	function onError(error: ApolloError) {
+		// TODO: to test
+		console.log(error);
+		dispatchNotification(
+			popNotification({
+				status: NotificationStatus.Error,
+				text: error.graphQLErrors[0].message,
+			}),
+		);
+	}
+
 	const { error: subscriptionMessageError } = useSubscription(
 		MESSAGE_SUBSCRIPTION,
-		{ variables: { receiverId: 1, conversationId }, onData },
+		{ variables: { conversationId }, onData, onError },
 	);
 
 	const onEnter: KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
@@ -162,13 +181,22 @@ export const ScrollableComponent: React.FunctionComponent<{
 							text: trimmedMessage,
 						},
 					},
-				}).then((createMessageData) => {
-					dispatch({
-						type: ConvEvent.SEND_MESSAGE,
-						variables: { message: createMessageData.data.sendMessage },
+				})
+					.then((createMessageData) => {
+						dispatch({
+							type: ConvEvent.SEND_MESSAGE,
+							variables: { message: createMessageData.data.sendMessage },
+						});
+						setMessage('');
+					})
+					.catch((error) => {
+						dispatchNotification(
+							popNotification({
+								status: NotificationStatus.Error,
+								text: error.graphQLErrors[0].message,
+							}),
+						);
 					});
-					setMessage('');
-				});
 			}
 		}
 	};
@@ -186,10 +214,6 @@ export const ScrollableComponent: React.FunctionComponent<{
 		}
 
 		if (state.lastAction === ConvEvent.LOAD_PREVIOUS_MESSAGES) {
-			console.log(
-				`${outerDiv.current.scrollHeight} ${state.previousScrollHeight!}`,
-			);
-
 			outerDiv.current.scrollTo({
 				left: 0,
 				top: outerDiv.current.scrollHeight - state.previousScrollHeight!,
@@ -218,8 +242,6 @@ export const ScrollableComponent: React.FunctionComponent<{
 
 	function handleScroll(event: any) {
 		const { scrollTop, scrollHeight, clientHeight } = event.target;
-
-		console.log(outerDiv.current.scrollHeight);
 
 		if (scrollTop === 0 && state.messages.length < count) {
 			// if try to scroll on top, load previous messages

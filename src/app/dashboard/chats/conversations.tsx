@@ -1,5 +1,10 @@
 'use client';
 
+import {
+	NotificationStatus,
+	popNotification,
+} from '@/lib/features/notification/notificationSlice';
+import { useAppDispatchWithResetState } from '@/lib/hooks';
 import { gql, useSuspenseQuery } from '@apollo/client';
 import Link from 'next/link';
 
@@ -26,6 +31,12 @@ export default function Conversations() {
 		variables: { take: 2 },
 	});
 
+	// const dispatch = useAppDispatchWithResetState()
+
+	// if (error) {
+	// 	dispatch(popNotification({text: error.graphQLErrors[0].message, status: NotificationStatus.Error}))
+	// }
+
 	return (
 		<div className="w-50">
 			{'Conversations:'}
@@ -36,7 +47,7 @@ export default function Conversations() {
 					{data.conversations.map(
 						/*@ts-ignore*/
 						({ id: conversationId, messages, peer: { id: peerId, name } }) => (
-							<li className="p-2">
+							<li key={peerId} className="p-2">
 								{/* Display messages here */}
 								<Link
 									href={{

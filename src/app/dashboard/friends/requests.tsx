@@ -1,5 +1,10 @@
 'use client';
 
+import {
+	NotificationStatus,
+	popNotification,
+} from '@/lib/features/notification/notificationSlice';
+import { useAppDispatchWithResetState } from '@/lib/hooks';
 import { gql, useMutation, useSuspenseQuery } from '@apollo/client';
 
 const GET_FRIENDS_REQUEST = gql`
@@ -24,6 +29,8 @@ export default function FriendRequests() {
 	const [respondFriendRequest, { loading, error: respondFriendReqError }] =
 		useMutation(RESPOND_FRIENDS_REQUEST);
 
+	const dispatchNotification = useAppDispatchWithResetState();
+
 	/*@ts-ignore*/
 	return data.myFriendRequests.length ? (
 		<div className="w-30">
@@ -32,7 +39,7 @@ export default function FriendRequests() {
 				{/*@ts-ignore*/}
 				{data.myFriendRequests?.map(({ id, requester: { name } }) => (
 					// <div className="flex flex-row justify-start w-100">
-					<li className="w-full">
+					<li key={id} className="w-full">
 						<div className="flex justify-start w-full">
 							<div className="text-black mr-2">{name}</div>
 							<button
@@ -43,6 +50,22 @@ export default function FriendRequests() {
 											response: { friendRequestId: id, accept: true },
 										},
 									})
+										.then((respondFriendReqData) => {
+											dispatchNotification(
+												popNotification({
+													status: NotificationStatus.Confirmation,
+													text: 'Action successfull',
+												}),
+											);
+										})
+										.catch((respondFriendReqError) => {
+											dispatchNotification(
+												popNotification({
+													status: NotificationStatus.Error,
+													text: respondFriendReqError.graphQLErrors[0].message,
+												}),
+											);
+										})
 								}
 							>
 								Accept
@@ -52,6 +75,22 @@ export default function FriendRequests() {
 									respondFriendRequest({
 										variables: { friendRequestId: id, accept: false },
 									})
+										.then((respondFriendReqData) => {
+											dispatchNotification(
+												popNotification({
+													status: NotificationStatus.Confirmation,
+													text: 'Action successfull',
+												}),
+											);
+										})
+										.catch((respondFriendReqError) => {
+											dispatchNotification(
+												popNotification({
+													status: NotificationStatus.Error,
+													text: respondFriendReqError.graphQLErrors[0].message,
+												}),
+											);
+										})
 								}
 							>
 								Refuse
