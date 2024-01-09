@@ -1,5 +1,10 @@
 'use client';
 
+import {
+	NotificationStatus,
+	popNotification,
+} from '@/lib/features/notification/notificationSlice';
+import { useAppDispatchWithResetState } from '@/lib/hooks';
 import { gql, useMutation, useSuspenseQuery } from '@apollo/client';
 
 const GET_FRIENDS_SUGGESTIONS = gql`
@@ -31,6 +36,8 @@ export default function FriendSuggestions() {
 		{ data: friendReqData, loading, error: friendSuggestionError },
 	] = useMutation(SEND_FRIEND_REQ);
 
+	const dispatchNotification = useAppDispatchWithResetState();
+
 	// TODO: consider people with non responded friend request
 
 	return (
@@ -40,12 +47,28 @@ export default function FriendSuggestions() {
 				{/*@ts-ignore*/}
 				{data.friendSuggestions?.map(({ id, name }) => (
 					// <div className="flex flex-row justify-start w-100">
-					<li className="w-full">
+					<li key={id} className="w-full">
 						<div className="flex justify-start w-full">
 							<div className="text-black mr-2">{name}</div>
 							<button
 								onClick={() =>
 									sendFriendRequest({ variables: { requesteeId: id } })
+										.then((sendFriendRequestData) => {
+											dispatchNotification(
+												popNotification({
+													status: NotificationStatus.Confirmation,
+													text: 'Friend request successfully sent',
+												}),
+											);
+										})
+										.catch((sendFriendRequestError) => {
+											dispatchNotification(
+												popNotification({
+													status: NotificationStatus.Error,
+													text: sendFriendRequestError.graphQLErrors[0].message,
+												}),
+											);
+										})
 								}
 							>
 								Send

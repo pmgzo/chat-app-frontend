@@ -1,8 +1,13 @@
 'use client';
 
+import {
+	NotificationStatus,
+	popNotification,
+} from '@/lib/features/notification/notificationSlice';
+import { useAppDispatchWithResetState } from '@/lib/hooks';
 import { gql, useMutation, useSuspenseQuery } from '@apollo/client';
 
-const GET_FRIENDS_REQUEST = gql`
+const GET_FRIENDS_LIST = gql`
 	query GetFriendlist {
 		myFriendList {
 			friend {
@@ -20,9 +25,11 @@ const REMOVE_FRIEND = gql`
 `;
 
 export default function FriendList() {
-	const { error, data } = useSuspenseQuery(GET_FRIENDS_REQUEST);
+	const { error, data } = useSuspenseQuery(GET_FRIENDS_LIST);
 	const [removeFriend, { loading, error: removeFriendError }] =
 		useMutation(REMOVE_FRIEND);
+
+	const dispatchNotification = useAppDispatchWithResetState();
 
 	/*@ts-ignore*/
 	return data.myFriendList.length ? (
@@ -32,7 +39,7 @@ export default function FriendList() {
 				{/*@ts-ignore*/}
 				{data.myFriendList?.map(({ friend: { name }, friendshipId }) => (
 					// <div className="flex flex-row justify-start w-100">
-					<li className="w-full">
+					<li key={name} className="w-full">
 						<div className="flex justify-start w-full">
 							<div className="text-black mr-2">{name}</div>
 							<button
@@ -42,6 +49,22 @@ export default function FriendList() {
 											friendshipId,
 										},
 									})
+										.then((removeFriendData) => {
+											dispatchNotification(
+												popNotification({
+													text: 'Friend removed',
+													status: NotificationStatus.Confirmation,
+												}),
+											);
+										})
+										.catch((removeFriendError) => {
+											dispatchNotification(
+												popNotification({
+													text: "Friend wasn't removed",
+													status: NotificationStatus.Error,
+												}),
+											);
+										})
 								}
 							>
 								Delete
