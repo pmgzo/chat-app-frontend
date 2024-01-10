@@ -203,7 +203,8 @@ export const ScrollableComponent: React.FunctionComponent<{
 
 	useEffect(() => {
 		if (
-			state.messages.length === step ||
+			(state.messages.length === count && step > count) ||
+			(state.messages.length === step && step < count) ||
 			state.lastAction === ConvEvent.SEND_MESSAGE
 		) {
 			outerDiv.current.scrollTo({
@@ -254,7 +255,7 @@ export const ScrollableComponent: React.FunctionComponent<{
 
 	return (
 		<>
-			<div className="bg-gray-50 w-5/6 h-[25rem] flex flex-col-reverse">
+			<div className="bg-gray-50 w-[60rem] h-[25rem] flex flex-col-reverse">
 				{state.unseenMessages !== 0 ? (
 					<div className="absolute w-5/6 bg-gray-100 text-black z-10 flex justify-center">{`You have ${state.unseenMessages} unread message(s)`}</div>
 				) : (
@@ -281,16 +282,18 @@ export const ScrollableComponent: React.FunctionComponent<{
 								senderId == peerId ? (
 									<div
 										key={String(id)}
-										className="flex flex-row-reverse max-w-3/6 mb-2 mr-2"
+										className="flex flex-row-reverse mb-2 mr-2"
 									>
-										<li className="bg-gray-200 p-2 rounded-xl">{text}</li>
+										<li className="bg-gray-200 p-2 max-w-[30rem] rounded-xl break-words">
+											{text}
+										</li>
 									</div>
 								) : (
 									<div
 										key={String(id)}
-										className="flex flex-start max-w-3/6 mb-2 ml-2"
+										className="flex flex-start mb-2 ml-2 max-w-[30rem]"
 									>
-										<li className="bg-[#E4ABFF] text-black p-2  rounded-xl">
+										<li className="bg-[#E4ABFF] p-2 rounded-xl max-w-[30rem] break-words">
 											{text}
 										</li>
 									</div>
