@@ -12,7 +12,7 @@ export default function Page() {
 			<div className="flex justify-center">
 				<h3 className="text-black bg-white"> Chats Page </h3>
 			</div>
-			<ErrorBoundary fallback={<div>Something went wrong</div>}>
+			<ErrorBoundary fallback={<div>Couldn't load conversations</div>}>
 				<Suspense fallback={<Loading />}>
 					<Conversations />
 					<UncreatedConversations />

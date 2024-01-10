@@ -31,12 +31,6 @@ export default function Conversations() {
 		variables: { take: 2 },
 	});
 
-	// const dispatch = useAppDispatchWithResetState()
-
-	// if (error) {
-	// 	dispatch(popNotification({text: error.graphQLErrors[0].message, status: NotificationStatus.Error}))
-	// }
-
 	return (
 		<div className="w-50">
 			{'Conversations:'}
