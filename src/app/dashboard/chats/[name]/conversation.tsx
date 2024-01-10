@@ -284,7 +284,7 @@ export const ScrollableComponent: React.FunctionComponent<{
 										key={String(id)}
 										className="flex flex-row-reverse mb-2 mr-2"
 									>
-										<li className="bg-gray-200 p-2 max-w-[30rem] rounded-xl break-words">
+										<li className="bg-gray-200 p-2 max-w-[30rem] rounded-xl break-words text-wrap">
 											{text}
 										</li>
 									</div>
@@ -293,7 +293,7 @@ export const ScrollableComponent: React.FunctionComponent<{
 										key={String(id)}
 										className="flex flex-start mb-2 ml-2 max-w-[30rem]"
 									>
-										<li className="bg-[#E4ABFF] p-2 rounded-xl max-w-[30rem] break-words">
+										<li className="bg-[#E4ABFF] p-2 rounded-xl max-w-[30rem] break-words text-wrap">
 											{text}
 										</li>
 									</div>

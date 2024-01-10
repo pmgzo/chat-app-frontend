@@ -23,15 +23,15 @@ function DashboardRendering({ children }: { children: React.ReactNode }) {
 				<Notification status={notificationStatus} text={notificationText} />
 			</div>
 			<div className="w-full">
-				<div className="inline-flex ml-5 mt-5">
-					<h2 className="text-black p-2">
+				<div className="ml-5 mt-5 grid grid-cols-3 w-[15rem]">
+					<h2 className="text-black text-lg hover:font-bold rounded-xl p-2">
 						<Link href="/dashboard/chats">Chats</Link>
 					</h2>
-					<h2 className="text-black p-2">
+					<h2 className="text-black text-lg hover:font-bold rounded-xl p-2">
 						<Link href="/dashboard/friends">Friends</Link>
 					</h2>
 					<button
-						className="text-black p-2 hover:bg-black hover:text-white hover:rounded-xl hover:p-2"
+						className="text-black text-lg hover:bg-black hover:text-white rounded-xl p-2 ml-1"
 						onClick={() => {
 							client.clearStore().then(() => {
 								sessionStorage.removeItem('Token');

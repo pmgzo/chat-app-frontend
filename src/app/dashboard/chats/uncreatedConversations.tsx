@@ -62,7 +62,7 @@ export default function UncreatedConversations() {
 						id: number;
 						peer: { name: string };
 					}) => (
-						<li className="flex flex-col justify-center w-[15rem] bg-[#E4ABFF] text-center p-4 rounded-xl hover:shadow-md">
+						<li key={String(friendshipId)} className="flex flex-col justify-center w-[15rem] bg-[#E4ABFF] text-center p-4 rounded-xl hover:shadow-md">
 							<button
 								onClick={() => {
 									createConversation({
