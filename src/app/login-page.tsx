@@ -32,17 +32,9 @@ function getCustomGQLErrorCode(code?: string): CustomGQLErrorCode | undefined {
 }
 
 export const LoginPage: React.FunctionComponent<{}> = () => {
-	const [login, { error }] = useMutation(LOGIN);
+	const [login] = useMutation(LOGIN);
 	const router = useRouter();
 	const [gqlError, setGQLError] = useState<undefined | GQLError>();
-
-	if (error && !gqlError) {
-		setGQLError({
-			message: error!.message,
-			// @ts-ignore
-			code: getCustomGQLErrorCode(error.graphQLErrors[0]?.extensions?.code),
-		});
-	}
 
 	return (
 		<div className="grid justify-items-center w-full">
@@ -63,8 +55,14 @@ export const LoginPage: React.FunctionComponent<{}> = () => {
 								router.push('/dashboard');
 							});
 						})
-						.catch((err) => {
-							// to avoid error in the console
+						.catch((lodingError) => {
+							setGQLError({
+								message: lodingError.graphQLErrors[0].message,
+								// @ts-ignore
+								code: getCustomGQLErrorCode(
+									lodingError.graphQLErrors[0]?.extensions?.code,
+								),
+							});
 						});
 				}}
 				outlineInputs={

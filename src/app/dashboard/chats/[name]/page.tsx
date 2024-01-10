@@ -12,8 +12,8 @@ export default function Page({ params }: { params: { name: string } }) {
 	const conversationId = searchParams.get('conversationId');
 
 	return (
-		<div className="">
-			<div className="text-xl flex justify-center w-5/6 my-5">
+		<div>
+			<div className="text-xl flex justify-center w-[60rem] my-5">
 				{params.name}
 			</div>
 			<ErrorBoundary fallback={<div>Couldn't load conversation</div>}>
