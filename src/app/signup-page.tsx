@@ -33,7 +33,10 @@ export const SignUpPage: React.FunctionComponent<{}> = () => {
 						},
 					})
 						.then((resMutation) => {
-							sessionStorage.setItem('Token', resMutation.data.createUser.token);
+							sessionStorage.setItem(
+								'Token',
+								resMutation.data.createUser.token,
+							);
 
 							router.push('/dashboard');
 						})

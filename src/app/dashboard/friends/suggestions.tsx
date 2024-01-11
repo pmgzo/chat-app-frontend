@@ -42,12 +42,12 @@ const SEND_FRIEND_REQ = gql`
 `;
 
 export default function FriendSuggestions() {
-	const { data: friendSuggestionsData, refetch: refetchFriendSuggestions } = useSuspenseQuery(
-		GET_FRIENDS_SUGGESTIONS,
-	);
-	const { data: unrespondedFriendRequestsData, refetch: refetchUnrespondedFriendRequest } = useSuspenseQuery(
-		GET_UNRESPONDED_FRIEND_REQUESTS,
-	);
+	const { data: friendSuggestionsData, refetch: refetchFriendSuggestions } =
+		useSuspenseQuery(GET_FRIENDS_SUGGESTIONS);
+	const {
+		data: unrespondedFriendRequestsData,
+		refetch: refetchUnrespondedFriendRequest,
+	} = useSuspenseQuery(GET_UNRESPONDED_FRIEND_REQUESTS);
 
 	const [sendFriendRequest] = useMutation(SEND_FRIEND_REQ);
 
@@ -77,7 +77,7 @@ export default function FriendSuggestions() {
 												);
 												refetchFriendSuggestions().then(() => {
 													refetchUnrespondedFriendRequest();
-												})
+												});
 											})
 											.catch((sendFriendRequestError) => {
 												dispatchNotification(
