@@ -25,7 +25,7 @@ const RESPOND_FRIENDS_REQUEST = gql`
 `;
 
 export default function FriendRequests() {
-	const { error, data } = useSuspenseQuery(GET_FRIENDS_REQUEST);
+	const { error, data, refetch } = useSuspenseQuery(GET_FRIENDS_REQUEST);
 	const [respondFriendRequest, { loading, error: respondFriendReqError }] =
 		useMutation(RESPOND_FRIENDS_REQUEST);
 
@@ -41,7 +41,10 @@ export default function FriendRequests() {
 				{/*@ts-ignore*/}
 				{data.myFriendRequests?.map(({ id, requester: { name } }) => (
 					// <div className="flex flex-row justify-start w-100">
-					<li key={id} className="w-full bg-gray-200 h-[5rem] rounded-xl flex flex-col justify-center">
+					<li
+						key={id}
+						className="w-full bg-gray-200 h-[5rem] rounded-xl flex flex-col justify-center"
+					>
 						<div className="w-full text-black text-center">{name}</div>
 						<div className="flex justify-center ">
 							<div className="b-1 w-1/2 flex justify-evenly">
@@ -60,6 +63,7 @@ export default function FriendRequests() {
 														text: 'Action successfull',
 													}),
 												);
+												refetch();
 											})
 											.catch((respondFriendReqError) => {
 												dispatchNotification(
@@ -87,6 +91,7 @@ export default function FriendRequests() {
 														text: 'Action successfull',
 													}),
 												);
+												refetch();
 											})
 											.catch((respondFriendReqError) => {
 												dispatchNotification(
@@ -110,7 +115,7 @@ export default function FriendRequests() {
 	) : (
 		<div className="w-60">
 			<div className="text-center font-medium bg-gray-200 rounded-t-xl p-5">
-				{"No friend request :("}
+				{'No friend request :('}
 			</div>
 		</div>
 	);

@@ -13,7 +13,7 @@ export default function Page({ params }: { params: { name: string } }) {
 
 	return (
 		<div>
-			<div className="text-xl flex justify-center w-[60rem] my-5">
+			<div className="text-xl flex justify-center bg-gray-200 w-[60rem] p-5 mt-5 rounded-t-xl">
 				{params.name}
 			</div>
 			<ErrorBoundary fallback={<div>Couldn't load conversation</div>}>
