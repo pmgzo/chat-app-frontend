@@ -256,15 +256,17 @@ export const ScrollableComponent: React.FunctionComponent<{
 	return (
 		<>
 			<div className="bg-gray-50 w-[60rem] h-[25rem] flex flex-col-reverse">
-				{state.unseenMessages !== 0 ? (
-					<div className="absolute w-5/6 bg-gray-100 text-black z-10 flex justify-center">{`You have ${state.unseenMessages} unread message(s)`}</div>
+				{/** TODO: when the conversation is too short, this is not needed as it already appear on the view */}
+				{state.unseenMessages !== 0 &&
+				outerDiv.current.scrollHeight > outerDiv.current.clientHeight ? (
+					<div className="absolute w-[60rem] bg-gray-100 text-black z-10 flex justify-center">{`You have ${state.unseenMessages} unread message(s)`}</div>
 				) : (
 					''
 				)}
 
 				<ul
 					ref={outerDiv}
-					className="child h-full relative overflow-y-scroll"
+					className="mt-1 child h-full relative overflow-y-scroll"
 					onScroll={handleScroll}
 				>
 					{/* @ts-ignore */}
@@ -303,9 +305,9 @@ export const ScrollableComponent: React.FunctionComponent<{
 				</ul>
 			</div>
 
-			<div className="flex flex-start">
+			<div className="bg-[#E4ABFF] w-[60rem] h-[10rem] rounded-b-xl">
 				<textarea
-					className="border-4 border-black p-2 max-w-100"
+					className="mt-2 ml-2 w-full h-full bg-[#DC93FF] border-4 p-2 max-w-[30rem] max-h-[9rem] rounded-xl"
 					value={message}
 					name="message"
 					onChange={(event) => {
@@ -333,18 +335,16 @@ export default function Conversation({
 	const { count, messages: startData } = data.conversation;
 
 	return (
-		<div className="flex flex-col">
-			<div className="h-[25rem]">
-				<ScrollableComponent
-					fetchMore={fetchMore}
-					count={count}
-					step={step}
-					unchangedVariables={{ id: conversationId }}
-					startData={startData}
-					peerId={peerId}
-					conversationId={conversationId}
-				/>
-			</div>
+		<div className="h-[25rem]">
+			<ScrollableComponent
+				fetchMore={fetchMore}
+				count={count}
+				step={step}
+				unchangedVariables={{ id: conversationId }}
+				startData={startData}
+				peerId={peerId}
+				conversationId={conversationId}
+			/>
 		</div>
 	);
 }

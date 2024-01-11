@@ -37,13 +37,16 @@ function DashboardRendering({ children }: { children: React.ReactNode }) {
 				<div className="ml-5 grid grid-cols-3 w-[15rem]">
 					{menuLinks.map(({ href, name }) =>
 						pathName === href ? (
-							<div className="font-semibold">
+							<div key={href} className="font-semibold">
 								<h2 className="text-black text-lg hover:font-semibold rounded-xl p-2">
 									<Link href={href}>{name}</Link>
 								</h2>
 							</div>
 						) : (
-							<h2 className="text-black text-lg hover:font-semibold rounded-xl p-2">
+							<h2
+								key={href}
+								className="text-black text-lg hover:font-semibold rounded-xl p-2"
+							>
 								<Link href={href}>{name}</Link>
 							</h2>
 						),
