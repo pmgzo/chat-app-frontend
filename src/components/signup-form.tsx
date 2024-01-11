@@ -84,7 +84,7 @@ export const SignUpForm: React.FunctionComponent<SignUpFormArgs> = ({
 	const onSubmit = handleSubmit(submit);
 
 	return (
-		<div className="grid justify-items-center border-2 border-black w-3/12 h-80 rounded-3xl">
+		<div className="grid justify-items-center w-3/12 h-80 rounded-3xl bg-[#E4ABFF]">
 			<h4 className="text-black mt-10 text-3xl">Sign up</h4>
 
 			<form onSubmit={onSubmit} className="flex flex-col">
@@ -120,7 +120,7 @@ export const SignUpForm: React.FunctionComponent<SignUpFormArgs> = ({
 				</div>
 
 				<input
-					className="border-black border-2 text-black rounded-xl max-w-xl hover:bg-black hover:text-white m-2"
+					className="bg-[#DC93FF] text-black rounded-xl max-w-xl hover:text-white focus:outline focus:border focus:outline-transparent focus:border-transparent m-2"
 					type="submit"
 					value="Submit"
 				/>

@@ -52,7 +52,7 @@ function DashboardRendering({ children }: { children: React.ReactNode }) {
 						),
 					)}
 					<button
-						className="text-black text-lg hover:bg-black hover:text-white rounded-xl p-2 ml-1"
+						className="text-black text-lg hover:bg-[#E4ABFF] w-fit rounded-lg px-1 ml-1"
 						onClick={() => {
 							client.clearStore().then(() => {
 								sessionStorage.removeItem('Token');
