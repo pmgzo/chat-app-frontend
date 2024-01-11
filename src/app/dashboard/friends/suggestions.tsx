@@ -30,7 +30,7 @@ const SEND_FRIEND_REQ = gql`
 `;
 
 export default function FriendSuggestions() {
-	const { error, data } = useSuspenseQuery(GET_FRIENDS_SUGGESTIONS);
+	const { error, data, refetch } = useSuspenseQuery(GET_FRIENDS_SUGGESTIONS);
 	const [
 		sendFriendRequest,
 		{ data: friendReqData, loading, error: friendSuggestionError },
@@ -41,16 +41,18 @@ export default function FriendSuggestions() {
 	// TODO: consider people with non responded friend request
 
 	return (
-		<div className="w-30">
-			Suggestions:
-			<ul className="grid grid-cols-1 gap-4 w-full">
+		<div className="w-60">
+			<div className="text-center font-medium bg-gray-200 rounded-t-xl p-5 mb-4">
+				Our friend suggestions
+			</div>
+			<ul className="grid grid-cols-1 gap-4 w-full overflow-y-scroll">
 				{/*@ts-ignore*/}
 				{data.friendSuggestions?.map(({ id, name }) => (
 					// <div className="flex flex-row justify-start w-100">
-					<li key={id} className="w-full">
-						<div className="flex justify-start w-full">
-							<div className="text-black mr-2">{name}</div>
+					<li key={id} className="w-full bg-gray-200 h-[5rem] rounded-xl">
+						<div className="w-full relative">
 							<button
+								className="absolute right-1 text-[12px] bg-[#3DCC19] rounded mt-2 px-1"
 								onClick={() =>
 									sendFriendRequest({ variables: { requesteeId: id } })
 										.then((sendFriendRequestData) => {
@@ -60,6 +62,7 @@ export default function FriendSuggestions() {
 													text: 'Friend request successfully sent',
 												}),
 											);
+											refetch();
 										})
 										.catch((sendFriendRequestError) => {
 											dispatchNotification(
@@ -73,6 +76,10 @@ export default function FriendSuggestions() {
 							>
 								Send
 							</button>
+						</div>
+
+						<div className="flex flex-col justify-center h-full w-full text-black text-center">
+							{name}
 						</div>
 					</li>
 				))}

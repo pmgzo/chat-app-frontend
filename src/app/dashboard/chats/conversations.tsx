@@ -32,13 +32,16 @@ export default function Conversations() {
 	}
 
 	return (
-		<div className="w-50 ml-3">
+		<div className="w-50">
 			{'Conversations feed:'}
 			{data.conversations?.length ? (
 				<ul className="flex justify-start overflow-x-scroll">
 					{data.conversations.map(
 						({ id: conversationId, messages, peer: { id: peerId, name } }) => (
-							<li key={String(conversationId)} className="h-[17rem] w-[15rem] mr-3">
+							<li
+								key={String(conversationId)}
+								className="h-[17rem] w-[15rem] mr-3"
+							>
 								<Link
 									className="w-full h-full flex flex-col rounded-xl hover:shadow-md"
 									href={{

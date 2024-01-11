@@ -33,74 +33,85 @@ export default function FriendRequests() {
 
 	/*@ts-ignore*/
 	return data.myFriendRequests.length ? (
-		<div className="w-30">
-			Requests:
-			<ul className="grid grid-cols-1 gap-4 w-full">
+		<div className="w-60">
+			<div className="text-center font-medium bg-gray-200 rounded-t-xl p-5 mb-4">
+				Requests
+			</div>
+			<ul className="grid grid-cols-1 gap-4 w-full overflow-y-scroll">
 				{/*@ts-ignore*/}
 				{data.myFriendRequests?.map(({ id, requester: { name } }) => (
 					// <div className="flex flex-row justify-start w-100">
-					<li key={id} className="w-full">
-						<div className="flex justify-start w-full">
-							<div className="text-black mr-2">{name}</div>
-							<button
-								className="mr-2"
-								onClick={() =>
-									respondFriendRequest({
-										variables: {
-											response: { friendRequestId: id, accept: true },
-										},
-									})
-										.then((respondFriendReqData) => {
-											dispatchNotification(
-												popNotification({
-													status: NotificationStatus.Confirmation,
-													text: 'Action successfull',
-												}),
-											);
+					<li key={id} className="w-full bg-gray-200 h-[5rem] rounded-xl flex flex-col justify-center">
+						<div className="w-full text-black text-center">{name}</div>
+						<div className="flex justify-center ">
+							<div className="b-1 w-1/2 flex justify-evenly">
+								<button
+									className="bg-[#3DCC19] w-fit text-[12px] rounded px-1"
+									onClick={() =>
+										respondFriendRequest({
+											variables: {
+												response: { friendRequestId: id, accept: true },
+											},
 										})
-										.catch((respondFriendReqError) => {
-											dispatchNotification(
-												popNotification({
-													status: NotificationStatus.Error,
-													text: respondFriendReqError.graphQLErrors[0].message,
-												}),
-											);
+											.then((respondFriendReqData) => {
+												dispatchNotification(
+													popNotification({
+														status: NotificationStatus.Confirmation,
+														text: 'Action successfull',
+													}),
+												);
+											})
+											.catch((respondFriendReqError) => {
+												dispatchNotification(
+													popNotification({
+														status: NotificationStatus.Error,
+														text: respondFriendReqError.graphQLErrors[0]
+															.message,
+													}),
+												);
+											})
+									}
+								>
+									Accept
+								</button>
+								<button
+									className="w-fit text-[12px] bg-[#FE4F4F] rounded px-1"
+									onClick={() =>
+										respondFriendRequest({
+											variables: { friendRequestId: id, accept: false },
 										})
-								}
-							>
-								Accept
-							</button>
-							<button
-								onClick={() =>
-									respondFriendRequest({
-										variables: { friendRequestId: id, accept: false },
-									})
-										.then((respondFriendReqData) => {
-											dispatchNotification(
-												popNotification({
-													status: NotificationStatus.Confirmation,
-													text: 'Action successfull',
-												}),
-											);
-										})
-										.catch((respondFriendReqError) => {
-											dispatchNotification(
-												popNotification({
-													status: NotificationStatus.Error,
-													text: respondFriendReqError.graphQLErrors[0].message,
-												}),
-											);
-										})
-								}
-							>
-								Refuse
-							</button>
+											.then((respondFriendReqData) => {
+												dispatchNotification(
+													popNotification({
+														status: NotificationStatus.Confirmation,
+														text: 'Action successfull',
+													}),
+												);
+											})
+											.catch((respondFriendReqError) => {
+												dispatchNotification(
+													popNotification({
+														status: NotificationStatus.Error,
+														text: respondFriendReqError.graphQLErrors[0]
+															.message,
+													}),
+												);
+											})
+									}
+								>
+									Refuse
+								</button>
+							</div>
 						</div>
 					</li>
 				))}
 			</ul>
 		</div>
 	) : (
-		<div className="w-30">{'No Friend Request :('} </div>
+		<div className="w-60">
+			<div className="text-center font-medium bg-gray-200 rounded-t-xl p-5">
+				{"No Friend Request :("}
+			</div>
+		</div>
 	);
 }
