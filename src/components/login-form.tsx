@@ -60,7 +60,7 @@ export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 	}
 
 	return (
-		<div className="grid justify-items-center border-2 border-black w-3/12 h-80 rounded-3xl">
+		<div className="grid justify-items-center bg-[#E4ABFF] w-3/12 h-80 rounded-3xl">
 			<h4 className="text-black mt-10 text-3xl">Login</h4>
 
 			<form onSubmit={onSubmit} className="flex flex-col">
@@ -68,8 +68,8 @@ export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 					<input
 						className={`${
 							outlineInputs
-								? 'login-input  outline outline-2 outline-red-600 login-input'
-								: 'login-input'
+								? 'login-input outline outline-2 outline-red-600'
+								: 'login-input placeholder-gray-700'
 						}`}
 						{...register('username')}
 						placeholder="Username"
@@ -81,8 +81,8 @@ export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 					<input
 						className={
 							outlineInputs
-								? 'outline outline-2 outline-red-600 login-input'
-								: 'login-input'
+								? 'outline outline-2 outline-red-600 login-input placeholder-gray-700'
+								: 'login-input placeholder-gray-700'
 						}
 						type="password"
 						{...register('password')}
@@ -93,7 +93,7 @@ export const LoginForm: React.FunctionComponent<LoginFormArgs> = ({
 					)}
 				</div>
 				<input
-					className="border-black border-2 text-black rounded-xl max-w-xl hover:bg-black hover:text-white m-2"
+					className="bg-[#DC93FF] text-black rounded-xl max-w-xl hover:text-white focus:outline focus:border focus:outline-transparent focus:border-transparent m-2"
 					type="submit"
 					value="Submit"
 				/>

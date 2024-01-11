@@ -12,9 +12,9 @@ export const BottomHomePage: React.FunctionComponent<{}> = () => {
 
 	return (
 		<div>
-			<div className="flex flex-row-reverse mr-10">
+			<div className="absolute right-96">
 				<button
-					className="text-black p-2 hover:bg-black hover:text-white hover:rounded-xl hover:p-2"
+					className="text-black p-2 hover:bg-[#E4ABFF] rounded-xl p-2"
 					onClick={() =>
 						setConnexionType(
 							connexionType === ConnextionType.Signup

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+/* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
@@ -14,7 +14,7 @@
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
   }
-}
+} */
 
 body {
   color: rgb(var(--foreground-rgb));
@@ -28,7 +28,7 @@ body {
 
 @layer components {
   .login-input {
-    @apply text-black bg-white max-w-xl p-2 rounded-xl border-transparent m-2 focus:outline focus:outline-black focus:outline-2
+    @apply text-black bg-[#DC93FF] max-w-xl p-2 rounded-xl focus:outline focus:border focus:outline-transparent focus:border-transparent m-2
   }
   .form-message-error {
     @apply text-red-600 text-sm
