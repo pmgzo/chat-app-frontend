@@ -33,7 +33,9 @@ export default function Conversations() {
 
 	return (
 		<div className="w-50">
-			{'Conversations feed:'}
+			<div className="text-center font-medium bg-gray-200 rounded-tr-xl p-5 mb-4 w-[15rem]">
+				Conversations feed
+			</div>
 			{data.conversations?.length ? (
 				<ul className="flex justify-start overflow-x-scroll">
 					{data.conversations.map(

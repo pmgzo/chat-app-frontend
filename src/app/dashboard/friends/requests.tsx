@@ -110,7 +110,7 @@ export default function FriendRequests() {
 	) : (
 		<div className="w-60">
 			<div className="text-center font-medium bg-gray-200 rounded-t-xl p-5">
-				{"No Friend Request :("}
+				{"No friend request :("}
 			</div>
 		</div>
 	);

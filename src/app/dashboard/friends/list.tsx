@@ -35,7 +35,7 @@ export default function FriendList() {
 	return data.myFriendList.length ? (
 		<div className="w-60">
 			<div className="text-center font-medium bg-gray-200 rounded-t-xl p-5 mb-4">
-				Your Friends
+				Your friends
 			</div>
 			<ul className="grid grid-cols-1 gap-4 w-full overflow-y-scroll">
 				{/*@ts-ignore*/}
