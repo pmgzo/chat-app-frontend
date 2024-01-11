@@ -51,7 +51,7 @@ export default function UncreatedConversations() {
 	const dispatchNotification = useAppDispatchWithResetState();
 
 	return (
-		<div className="ml-3 mt-10">
+		<div className="mt-10">
 			<ul className="flex justify-start overflow-x-scroll">
 				{/*@ts-ignore*/}
 				{data.uncreatedConversations.map(
@@ -62,7 +62,10 @@ export default function UncreatedConversations() {
 						id: number;
 						peer: { name: string };
 					}) => (
-						<li key={String(friendshipId)} className="flex flex-col justify-center w-[15rem] bg-[#E4ABFF] text-center p-4 rounded-xl hover:shadow-md">
+						<li
+							key={String(friendshipId)}
+							className="flex flex-col justify-center w-[15rem] bg-[#E4ABFF] text-center p-4 rounded-xl hover:shadow-md mr-3"
+						>
 							<button
 								onClick={() => {
 									createConversation({
