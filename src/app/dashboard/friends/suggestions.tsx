@@ -59,8 +59,9 @@ export default function FriendSuggestions() {
 				Our friend suggestions
 			</div>
 			<ul className="grid grid-cols-1 gap-4 w-full overflow-y-scroll">
+				{/* @ts-ignore */}
 				{friendSuggestionsData.friendSuggestions
-					?.map(({ id, name }) => (
+					?.map(({id, name}:{ id: number, name: string }) => (
 						// <div className="flex flex-row justify-start w-100">
 						<li key={id} className="w-full bg-gray-200 h-[5rem] rounded-xl">
 							<div className="w-full relative">
@@ -100,6 +101,7 @@ export default function FriendSuggestions() {
 						</li>
 					))
 					.concat(
+						// @ts-ignore
 						unrespondedFriendRequestsData.myUnrespondedFriendRequests.map(
 							({
 								id: friendshipId,

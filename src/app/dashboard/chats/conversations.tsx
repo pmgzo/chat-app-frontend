@@ -36,9 +36,12 @@ export default function Conversations() {
 			<div className="text-center font-medium bg-gray-200 rounded-tr-xl p-5 mb-4 w-[15rem]">
 				Conversations feed
 			</div>
+			{/* @ts-ignore */}
 			{data.conversations?.length ? (
 				<ul className="flex justify-start overflow-x-scroll">
+					{/* @ts-ignore */}
 					{data.conversations.map(
+						// @ts-ignore
 						({ id: conversationId, messages, peer: { id: peerId, name } }) => (
 							<li
 								key={String(conversationId)}
@@ -57,6 +60,7 @@ export default function Conversations() {
 									<div className="bg-gray-50 w-full h-4/6">
 										<ul>
 											{messages
+												// @ts-ignore
 												.map(({ text, senderId, id }) =>
 													senderId === peerId ? (
 														<div

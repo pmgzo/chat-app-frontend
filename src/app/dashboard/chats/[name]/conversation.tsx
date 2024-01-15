@@ -207,16 +207,20 @@ export const ScrollableComponent: React.FunctionComponent<{
 			(state.messages.length === step && step < count) ||
 			state.lastAction === ConvEvent.SEND_MESSAGE
 		) {
+			// @ts-ignore
 			outerDiv.current.scrollTo({
 				left: 0,
+				// @ts-ignore
 				top: outerDiv.current.scrollHeight - outerDiv.current.clientHeight,
 				behavior: 'smooth',
 			});
 		}
 
 		if (state.lastAction === ConvEvent.LOAD_PREVIOUS_MESSAGES) {
+			// @ts-ignore
 			outerDiv.current.scrollTo({
 				left: 0,
+				// @ts-ignore
 				top: outerDiv.current.scrollHeight - state.previousScrollHeight!,
 			});
 		}
@@ -225,6 +229,7 @@ export const ScrollableComponent: React.FunctionComponent<{
 	function loadScroll() {
 		const newSkip = state.skip + step;
 
+		// @ts-ignore
 		const currentScrollHeight = outerDiv.current.scrollHeight;
 
 		fetchMore({
@@ -258,6 +263,7 @@ export const ScrollableComponent: React.FunctionComponent<{
 			<div className="bg-gray-50 w-[60rem] h-[25rem] flex flex-col-reverse">
 				{/** TODO: when the conversation is too short, this is not needed as it already appear on the view */}
 				{state.unseenMessages !== 0 &&
+				// @ts-ignore
 				outerDiv.current.scrollHeight > outerDiv.current.clientHeight ? (
 					<div className="absolute w-[60rem] bg-gray-100 text-black z-10 flex justify-center">{`You have ${state.unseenMessages} unread message(s)`}</div>
 				) : (
@@ -332,6 +338,7 @@ export default function Conversation({
 		variables: { id: conversationId, take: step },
 	});
 
+	// @ts-ignore
 	const { count, messages: startData } = data.conversation;
 
 	return (

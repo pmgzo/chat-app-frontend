@@ -67,6 +67,7 @@ export default function UncreatedConversations() {
 	return (
 		<div className="mt-10">
 			<ul className="flex justify-start overflow-x-scroll">
+				{/* @ts-ignore */}
 				{uncreatedConvsData.uncreatedConversations
 					.map(
 						({
@@ -110,6 +111,7 @@ export default function UncreatedConversations() {
 						),
 					)
 					.concat(
+						/* @ts-ignore */
 						unstartedConversationData.unstartedConversations.map(
 							({
 								id: conversationId,

@@ -10,7 +10,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 export default function Page() {
 	return (
 		<div className="w-full">
-			<ErrorBoundary fallback={<div>Couldn't load friend page</div>}>
+			<ErrorBoundary fallback={<div>Couldn&apos;t load friend page</div>}>
 				<Suspense fallback={<Loading />}>
 					{/* pending friend request */}
 					<div className="ml-3 grid grid-cols-3 gap-1 w-[50rem]">
