@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Auth } from './Auth';
+import { Auth } from './auth';
 import { client } from '../../apollo/client';
 import { ApolloProvider } from '@apollo/client';
 import StoreProvider from '../StoreProvider';
