@@ -12,8 +12,6 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 npm i
 ```
 
-
-
 ## Getting Started
 
 First, run the development server:
@@ -26,6 +24,14 @@ yarn dev
 pnpm dev
 # or
 bun dev
+```
+
+
+## Run with Docker
+
+```bash
+docker build -t chat-app-frontend .
+docker run -p 80:80 -it chat-app-frontend .
 ```
 
 Make sure the [backend](https://github.com/pmgzo/chat-app-backend) is running as well
