@@ -12,13 +12,11 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 
-// TODO: to change for prod env
-const httpLink = new HttpLink({ uri: process.env.NODE_ENV === 'production' ? `http://${process.env.NEXT_PUBLIC_BACKEND_URL}:3000/graphql` : 'http://localhost:3000/graphql' });
+const httpLink = new HttpLink({ uri: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_BACKEND_URL_HTTP : 'http://localhost:3000/graphql' });
 
-// TODO: to change for prod env
 const wsLink = new GraphQLWsLink(
 	createClient({
-		url: process.env.NODE_ENV === 'production' ? `ws://${process.env.NEXT_PUBLIC_BACKEND_URL}:3000/subscriptions` :'ws://localhost:3000/subscriptions',
+		url: process.env.NODE_ENV === 'production' ? `${process.env.NEXT_PUBLIC_BACKEND_URL_WS}` :'ws://localhost:3000/subscriptions',
 		connectionParams: () => ({
 			token: `Bearer ${sessionStorage?.getItem('Token')}`,
 		}),
